@@ -108,7 +108,15 @@
         <h2 class="text-xl my-2 font-light drop-shadow">without leaving the nest</h2>
       </div>
       <div class="flex justify-between sm:px-2 items-end mt-12">
-        <p class="text-3xl font-semibold text-slate-700">#{{ currentBirb.token_id }}</p>
+        <p>
+          <span class="text-3xl font-semibold text-slate-700">
+            #{{ currentBirb.token_id }}
+          </span>
+          <!-- <span v-if="nestingTime(currentBirb.token_id)">
+            <i class="far fa-clock"></i>
+            {{ String(nestingTime(currentBirb.token_id)) }}
+          </span> -->
+        </p>
         <p v-if="state.birbs.length > 1">
           <button class="bg-slate-300 px-4 py-2 rounded-xl font-semibold hover:bg-slate-300 shadow hover:shadow-none text-slate-600 hover:text-slate-800"
             @click="state.chooseBirb = true"
@@ -275,6 +283,7 @@ export default {
       birbCount: 0,
       birbs: [],
       birbIdx: 0,
+      nestingClock: null,
       dest: null,
       destWallet: null, // used for storing destination wallet address for ens domain
     });
@@ -508,6 +517,58 @@ export default {
       return state.dest;
     });
 
+    const nestingTime = async function(tokenID) {
+      if ( ! tokenID) {
+        return null;
+      }
+
+      let clock = await contract.methods.nestingPeriod( tokenID ).call({
+        gas: 100_000,
+      });
+
+      if ( ! clock || clock.nesting == false) {
+        return null;
+      }
+
+      state.nestingClock = clock.current;
+
+      if (state.nestingClock === 0) {
+        return null;
+      }
+
+      if (state.nestingClock < 86400) {
+        if (state.nestingClock < 60) {
+          return 'Less than a minute';
+        }
+
+        if (state.nestingClock < 60) {
+          let minutes = Math.floor(state.nestingClock / 3600)
+          return `${minutes} minute${minutes != 1? 's' : ''}`;
+        }
+
+        let hours = Math.floor(state.nestingClock / 3600);
+        const str = `${hours} hour${hours != 1? 'hours' : ''}`;
+
+        console.log(str);
+        return str;
+      }
+
+      let days = Math.floor( state.nestingClock / 86400 );
+      let months;
+      if ( days > 30 ) {
+        months = Math.floor( days / 30 );
+        days = days % 30;
+      }
+
+      let str = `${days} day${days != 1? 's' : ''}`
+
+      if (months) {
+        str = `${months} month${months != 1? 's' : ''} ${str}`;
+      }
+
+      return str;
+    }
+
     return {
       state,
       connectWallet,
@@ -515,6 +576,7 @@ export default {
       destWallet,
       checkEns,
       currentBirb,
+      nestingTime,
       selectBirb,
       xferAddressValid,
       confirmXfer,
