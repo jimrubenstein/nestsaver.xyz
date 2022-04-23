@@ -165,7 +165,7 @@
     <div class="mt-24 text-slate-500 text-center">
       <p>
         made by
-        <a href="https://twitter.com/entropy"
+        <a href="https://twitter.com/entropy256"
           class="hover:text-slate-800 hover:underline">
           <i class="fab fa-twitter"></i> entropy
         </a>
