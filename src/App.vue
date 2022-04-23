@@ -112,10 +112,11 @@
           <span class="text-3xl font-semibold text-slate-700">
             #{{ currentBirb.token_id }}
           </span>
-          <!-- <span v-if="nestingTime(currentBirb.token_id)">
+          <span v-if="nestingTime"
+            class="inline-block mx-2 text-slate-400 text-sm">
             <i class="far fa-clock"></i>
-            {{ String(nestingTime(currentBirb.token_id)) }}
-          </span> -->
+            {{ nestingTime }}
+          </span>
         </p>
         <p v-if="state.birbs.length > 1">
           <button class="bg-slate-300 px-4 py-2 rounded-xl font-semibold hover:bg-slate-300 shadow hover:shadow-none text-slate-600 hover:text-slate-800"
@@ -283,6 +284,7 @@ export default {
       birbCount: 0,
       birbs: [],
       birbIdx: 0,
+      nestingInfo: null,
       nestingClock: null,
       dest: null,
       destWallet: null, // used for storing destination wallet address for ens domain
@@ -338,13 +340,19 @@ export default {
         state.connected = true;
       });
 
-      state.chainID = await window.ethereum.request({
-        method: 'eth_chainId'
-      }).then(
-        hex => web3.utils.hexToNumber(hex)
-      );
+      // state.chainID = await window.ethereum.request({
+      //   method: 'eth_chainId'
+      // }).then(
+      //   hex => web3.utils.hexToNumber(hex)
+      // );
 
-      loadBirbs();
+      loadBirbs().then(() => {
+        if (state.birbs.length > 0) {
+          selectBirb(
+            state.birbs[ state.birbIdx ].token_id
+          );
+        }
+      });
     }
 
     function chainChanged() {
@@ -422,6 +430,8 @@ export default {
           break;
         }
       }
+
+      calculateNestingTime(tokenID);
 
       if (dest.value) {
         dest.value.focus();
@@ -517,57 +527,51 @@ export default {
       return state.dest;
     });
 
-    const nestingTime = async function(tokenID) {
-      if ( ! tokenID) {
+    async function calculateNestingTime(tokenID) {
+      if ( ! tokenID && tokenID !== 0) {
         return null;
       }
 
-      let clock = await contract.methods.nestingPeriod( tokenID ).call({
+      const info = await contract.methods.nestingPeriod( tokenID ).call({
         gas: 100_000,
       });
 
-      if ( ! clock || clock.nesting == false) {
-        return null;
-      }
-
-      state.nestingClock = clock.current;
-
-      if (state.nestingClock === 0) {
-        return null;
-      }
-
-      if (state.nestingClock < 86400) {
-        if (state.nestingClock < 60) {
-          return 'Less than a minute';
-        }
-
-        if (state.nestingClock < 60) {
-          let minutes = Math.floor(state.nestingClock / 3600)
-          return `${minutes} minute${minutes != 1? 's' : ''}`;
-        }
-
-        let hours = Math.floor(state.nestingClock / 3600);
-        const str = `${hours} hour${hours != 1? 'hours' : ''}`;
-
-        console.log(str);
-        return str;
-      }
-
-      let days = Math.floor( state.nestingClock / 86400 );
-      let months;
-      if ( days > 30 ) {
-        months = Math.floor( days / 30 );
-        days = days % 30;
-      }
-
-      let str = `${days} day${days != 1? 's' : ''}`
-
-      if (months) {
-        str = `${months} month${months != 1? 's' : ''} ${str}`;
-      }
-
-      return str;
+      state.nestingInfo = info;
     }
+
+    const nestingTime = computed(() => {
+      if ( ! state.nestingInfo || ! state.nestingInfo.nesting) {
+        return null;
+      }
+
+      const nestedFor = [];
+      let nestTime = state.nestingInfo.current;
+
+      if (nestTime >= 86400) {
+        const days = Math.round( nestTime / 86400 );
+        nestedFor.push(
+          `${days} day${ days != 1? 's' : '' }`
+        );
+      } else {
+        if ( nestTime >= 3600) {
+          const hours = Math.round( nestTime / 3600 );
+          nestedFor.push(
+            `${hours} hour${ hours != 1? 's': ''}`
+          );
+        } else if (nestTime >= 60) {
+          const minutes = Math.round( nestTime / 60);
+          nestedFor.push(
+            `${minutes} minute${ minutes != 1? 's' : ''}`
+          );
+        } else {
+          nestedFor.push(
+            `A few seconds`
+          );
+        }
+      }
+
+      return nestedFor.join(', ');
+    });
 
     return {
       state,
