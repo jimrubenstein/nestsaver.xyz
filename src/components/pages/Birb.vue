@@ -32,7 +32,7 @@
 
 						<div class="text-center">
 							<p class="text-2xl font-extralight">
-								<span v-if="state.birb.nestStatus.nested">
+								<span v-if="state.birb.nestStatus.nesting">
 									Nested
 								</span>
 								<span v-else>
