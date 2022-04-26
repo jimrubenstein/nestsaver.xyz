@@ -13,13 +13,13 @@
 			</div>
         </div>
 		<div v-else-if="state.birb">
-			<div class="max-w-screen-md mx-auto">
+			<div class="max-w-screen-md mx-auto px-8 sm:px-0">
 				<h1 class="text-3xl font-bold">#{{ state.birb.id }}</h1>
-				<div class="flex justify-between">
-					<div class="w-1/2">
+				<div class="sm:flex justify-between space-y-4 sm:space-y-0">
+					<div class="sm:w-1/2">
 						<img :src="state.birb.imgUrl" class="rounded-lg" />
 					</div>
-					<div class="w-1/2 grid grid-cols-2 grid-rows-4">
+					<div class="sm:w-1/2 grid grid-cols-2 grid-rows-4 gap-4">
 						<div class="text-center">
 							<p class="text-2xl font-extralight">
 								<span>

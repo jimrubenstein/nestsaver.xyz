@@ -56,8 +56,12 @@
 }
 </style>
 <template>
+
   <main class="w-full h-screen flex flex-col justify-center items-center">
     <div v-if=" ! state.web3detected">
+		 <nav-bar
+	  	:wallet="state.wallet"
+	  />
       <div class="text-center">
         <p><i class="fa fa-circle-exclamation fa-10x text-red-500"></i></p>
         <p class="text-center text-4xl my-8">
@@ -66,6 +70,9 @@
       </div>
     </div>
     <div v-else-if=" ! state.connected">
+		 <nav-bar
+	  	:wallet="state.wallet"
+	  />
       <button
         class="bg-slate-600 text-gray-50 py-4 px-8 text-center text-2xl rounded-xl shadow-xl drop-shadow-lg
         hover:bg-slate-500 hover:shadow-md hover:drop-shadow-md hover:text-white"
@@ -75,6 +82,9 @@
       </button>
     </div>
     <div v-else-if="state.loadingBirbs">
+			 <nav-bar
+	  	:wallet="state.wallet"
+	  />
       <div class="text-center">
         <div class="relative">
           <p class="text-8xl">🦉</p>
@@ -91,6 +101,9 @@
       <p class="text-[#58557A]">loading birbs</p>
     </div>
     <div v-else-if="state.noBirbs">
+		 <nav-bar
+	  	:wallet="state.wallet"
+	  />
       <div class="text-center">
         <div class="relative">
           <p class="text-8xl">🦉</p>

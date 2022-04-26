@@ -3,12 +3,12 @@
 		flex justify-start py-4 px-8
 		text-slate-600 border-b border-gray-200 bg-gray-50
 		z-10">
-		<div class="space-x-4 flex justify-start items-center">
-			<router-link :to='{ path: "/" }'>Transfer Moonbird</router-link>
+		<div class="sm:space-x-4 flex justify-start items-center">
+			<router-link :to='{ path: "/" }'>Nested Transfer</router-link>
 			<!-- <router-link :to='{ path: "/leaderboard" }'>Leaderboard</router-link> -->
 
 		</div>
-		<div class="ml-auto space-x-4">
+		<div class="ml-auto space-x-2">
 			<input type="tel" maxlength="4" max="9999" min="0"
 				v-model="state.birb_lookup"
 				@keyup="handleKeyup"
@@ -17,11 +17,12 @@
 				placeholder="Moonbird ID">
 			<button class="bg-slate-300 px-4 py-2 rounded-xl font-semibold hover:bg-slate-300 shadow hover:shadow-none text-slate-600 hover:text-slate-800"
 				@click="lookupBirb">
-				🦉 &nbsp; Lookup
+				🦉
+				<span class="sm:inline-block hidden"> &nbsp; Lookup</span>
 			</button>
 		</div>
 		<div v-if="props.wallet"
-			class="space-x-4 ml-4 flex items-center">
+			class="sm:space-x-4 ml-4 flex items-center">
 			<span class="tracking-wider">{{ `${props.wallet.substr(0, 6).toUpperCase().replace('X', 'x')}...${props.wallet.substr(-4).toUpperCase()}` }}</span>
 		</div>
 	</div>
